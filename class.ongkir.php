@@ -3,21 +3,23 @@ class Ongkir
 {
 	var $api_key 		= "your-api-key"; // api key rajaongkir
 	var $origin 		= 105; // city id
-	var $cache 			= TRUE; // caching data
+	var $cache  		= TRUE; // caching data
 	var $cacheTimeout 	= 60*60*24*7; // in seconds (1 week)
 
 	function __construct()
 	{
+		// start the session if no active session
 		if (session_status() == PHP_SESSION_NONE) {
 			session_start();
-			// set expired cache
-			if ( ! isset($_SESSION['_myOngkir']['expired'])) {
-				$_SESSION['_myOngkir']['expired'] = time()+$this->cacheTimeout;
-			} else {
-				// time to clear cache
-				if (time() > $_SESSION['_myOngkir']['expired']) {
-					$this->clearCache();
-				}
+		}
+		
+		// set expired cache
+		if ( ! isset($_SESSION['_myOngkir']['expired'])) {
+			$_SESSION['_myOngkir']['expired'] = time()+$this->cacheTimeout;
+		} else {
+			// time to clear cache
+			if (time() > $_SESSION['_myOngkir']['expired']) {
+				$this->clearCache();
 			}
 		}
 	}
