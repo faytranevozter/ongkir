@@ -164,5 +164,5 @@ Output:
 
 ## Get the city_id
 To get the city_id just test the ```get_city()``` method
-or see [Province and City ID](https://github.com/faytranevozter/ongkir/blob/master/class.ongkir.php "Province and City ID")
+or see [Province and City ID](https://github.com/faytranevozter/ongkir/blob/master/province.city.txt "Province and City ID")
 #### NOTE: VIEWING DOCUMENT IS NOT RECOMMENDED, TEST THE ```get_city``` METHOD AS POSSIBLE
