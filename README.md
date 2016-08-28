@@ -1,6 +1,12 @@
 # Library Ongkir Class
 For RajaOngkir
 
+## Why?
+- Easy to use
+- Save data into session
+- Tiny file size
+- Absolutely **_FREE_**
+
 ## Configuration
 
 ```php
