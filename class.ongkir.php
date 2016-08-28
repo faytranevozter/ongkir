@@ -1,10 +1,14 @@
 <?php
 class Ongkir
 {
-	var $api_key 		= "your-api-key"; // api key rajaongkir
-	var $origin 		= 105; // city id
-	var $cache  		= TRUE; // caching data
-	var $cacheTimeout 	= 60*60*24*7; // in seconds (1 week)
+	public $api_key 		= "your-api-key"; // api key rajaongkir
+	public $origin  		= 105; // city id
+	public $cache   		= TRUE; // caching data
+	public $cacheTimeout	= 60*60*24*7; // in seconds (1 week)
+
+	private $city_url = "http://api.rajaongkir.com/starter/city";
+	private $province_url = "http://api.rajaongkir.com/starter/province";
+	private $costs_url = "http://api.rajaongkir.com/starter/cost";
 
 	function __construct()
 	{
@@ -24,20 +28,22 @@ class Ongkir
 		}
 	}
 
-	function get_city($id=FALSE)
+	function get_province($id=FALSE)
 	{
-		$id=$id?"?id={$id}":"";
 
 		// cache
-		if($this->cache && $id == FALSE) {
-			if (isset($_SESSION['_myOngkir']['city'])) {
-				return $_SESSION['_myOngkir']['city'];
+		if($this->cache) {
+			if (isset($_SESSION['_myOngkir']['province'][$id])) {
+				return $_SESSION['_myOngkir']['province'][$id];
+			}
+			if (isset($_SESSION['_myOngkir']['province'])) {
+				return $_SESSION['_myOngkir']['province'];
 			}
 		}
 
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => "http://api.rajaongkir.com/starter/city{$id}",
+			CURLOPT_URL => $this->province_url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => "",
 			CURLOPT_MAXREDIRS => 10,
@@ -60,16 +66,87 @@ class Ongkir
 			$results = json_decode($response, true);
 			if (is_array($results) && isset($results['rajaongkir']) && isset($results['rajaongkir']['results'])) {
 				// caching data
-				if($this->cache && $id == FALSE) {
+				if($this->cache) {
+					// convert key to id
+					$newProvince = array();
+					foreach ($results['rajaongkir']['results'] as $c_key => $c_value) {
+						$newProvince[$c_value['province_id']] = $c_value;
+					}
 					// save data into session
-					$_SESSION['_myOngkir']['city'] = $results['rajaongkir']['results'];
+					$_SESSION['_myOngkir']['province'] = $newProvince;
 				}
-				return $results['rajaongkir']['results'];
+
+				if ($id) {
+					return $newProvince[$id];
+				} else {
+					return $newProvince;
+				}
+
 			} else {
 				return FALSE;
 			}
 		}
-	}	
+	}
+
+	function get_city($id=FALSE)
+	{
+
+		// cache
+		if($this->cache) {
+			if (isset($_SESSION['_myOngkir']['city'][$id])) {
+				return $_SESSION['_myOngkir']['city'][$id];
+			}
+			if (isset($_SESSION['_myOngkir']['city'])) {
+				return $_SESSION['_myOngkir']['city'];
+			}
+		}
+
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $this->city_url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "GET",
+			CURLOPT_HTTPHEADER => array(
+				"key: " . $this->api_key
+				),
+			));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+			return FALSE;
+		} else {
+			$results = json_decode($response, true);
+			if (is_array($results) && isset($results['rajaongkir']) && isset($results['rajaongkir']['results'])) {
+				// caching data
+				if($this->cache) {
+					// convert key to id
+					$newCity = array();
+					foreach ($results['rajaongkir']['results'] as $c_key => $c_value) {
+						$newCity[$c_value['city_id']] = $c_value;
+					}
+					// save data into session
+					$_SESSION['_myOngkir']['city'] = $newCity;
+				}
+
+				if ($id) {
+					return $newCity[$id];
+				} else {
+					return $newCity;
+				}
+
+			} else {
+				return FALSE;
+			}
+		}
+	}
 
 	function costs($destination, $weight, $courier)
 	{
@@ -81,7 +158,7 @@ class Ongkir
 		}
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
+			CURLOPT_URL => $this->costs_url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => "",
 			CURLOPT_MAXREDIRS => 10,
