@@ -1,11 +1,14 @@
 # Library Ongkir Class
-For RajaOngkir
+Simple Library PHP to get costs from courier (JNE,TIKI,POS) with RajaOngkir 
 
 ## Why?
 - Easy to use
 - Save data into session
 - Tiny file size
 - Absolutely **_FREE_**
+
+## Demo
+[See The Demo](http://www.elfay.id/ongkir "Demo")
 
 ## Configuration
 
